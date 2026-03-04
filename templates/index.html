@@ -1,21 +1,40 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhatsApp Web UI</title>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحكم بوت واتساب</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="container">
-    <h2>إرسال رسالة واتساب</h2>
-    <form method="post" action="/send_message">
-      <label>رقم المستلم (WhatsApp):</label>
-      <input type="text" name="number" placeholder="مثال: 96777xxxxxxx" required>
-      <label>الرسالة:</label>
-      <textarea name="message" placeholder="اكتب رسالتك هنا..." required></textarea>
-      <button type="submit">إرسال</button>
-    </form>
-  </div>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border-b-8 border-green-500">
+        <div class="flex justify-center mb-4">
+            <div class="bg-green-100 p-3 rounded-full">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="#M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+            </div>
+        </div>
+        <h2 class="text-2xl font-extrabold text-gray-800 text-center mb-2">مساعد Gemini الذكي</h2>
+        <p class="text-center text-gray-500 mb-6 text-sm">إرسال رسالة تجريبية إلى:<br><span class="font-mono text-green-700 font-bold">+967 774 440 982</span></p>
+        
+        <form method="post" action="/send_message" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-2">محتوى الرسالة:</label>
+                <textarea name="message" placeholder="اكتب شيئاً للبوت..." required 
+                    class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:ring-0 outline-none h-32 transition-all resize-none text-gray-700"></textarea>
+            </div>
+            
+            <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-green-700 transform hover:scale-[1.02] transition-all shadow-lg shadow-green-200">
+                إرسال الرسالة الآن
+            </button>
+        </form>
+        
+        <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                الحالة: متصل عبر Render
+            </span>
+        </div>
+    </div>
 </body>
 </html>
