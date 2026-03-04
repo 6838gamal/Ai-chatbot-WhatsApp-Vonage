@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Web UI</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>إرسال رسالة واتساب</h2>
+    <form method="post" action="/send_message">
+      <label>رقم المستلم (WhatsApp):</label>
+      <input type="text" name="number" placeholder="مثال: 96777xxxxxxx" required>
+      <label>الرسالة:</label>
+      <textarea name="message" placeholder="اكتب رسالتك هنا..." required></textarea>
+      <button type="submit">إرسال</button>
+    </form>
+  </div>
+</body>
+</html>
