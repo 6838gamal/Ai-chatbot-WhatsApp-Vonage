@@ -5,3 +5,5 @@ python-dotenv
 jinja2
 pydantic
 python-multipart
+vonage>=4.1.0
+vonage-messages
