@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 
-# الاستيراد الصحيح حسب التوثيق الذي أرسلته
+# استيراد المكتبة حسب التوثيق الذي يعمل لديك
 from vonage import Vonage, Auth, HttpClientOptions
 from vonage_messages.models import WhatsappText
 
@@ -17,53 +17,53 @@ ALLOWED_NUMBER = "967774440982"
 APP_ID = os.getenv("VONAGE_APPLICATION_ID")
 PRIVATE_KEY_PATH = os.getenv("VONAGE_PRIVATE_KEY_PATH", "private.key")
 SANDBOX_NUMBER = os.getenv("VONAGE_SANDBOX_NUMBER", "14157386102")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 app = FastAPI()
 base_dir = os.path.dirname(os.path.realpath(__file__))
 templates = Jinja2Templates(directory=os.path.join(base_dir, "templates"))
 
-# --- إعداد Vonage (بالطريقة الصحيحة الموثقة) ---
-# استخدام HttpClientOptions لتوجيه الطلبات إلى الساندبوكس
+# --- إعداد Vonage ---
 options = HttpClientOptions(api_host="messages-sandbox.nexmo.com")
-
-# التوثيق باستخدام التطبيق (Application ID + Private Key)
-auth = Auth(
-    application_id=APP_ID, 
-    private_key=PRIVATE_KEY_PATH
-)
-
-# إنشاء العميل
+auth = Auth(application_id=APP_ID, private_key=PRIVATE_KEY_PATH)
 vonage_client = Vonage(auth=auth, http_client_options=options)
 
-# --- إعداد Gemini 2.5 Flash ---
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
-
+# --- وظيفة Gemini ---
 def get_gemini_response(user_input: str) -> str:
+    # أبقينا على النسخة 2.5 فلاش
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    
     payload = {
-        "contents": [{"parts": [{"text": user_input}]}],
-        "system_instruction": {"parts": [{"text": "أنت مساعد ذكي ولطيف تتواصل مع الرقم 967774440982."}]}
+        "contents": [{"parts": [{"text": user_input}]}]
     }
+    
     try:
-        res = requests.post(GEMINI_URL, json=payload, timeout=10)
-        return res.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except:
-        return "عذراً، واجهت مشكلة في معالجة الرد."
+        res = requests.post(url, json=payload, timeout=15)
+        res_data = res.json()
+        
+        # هذا السطر مهم جداً لنعرف سبب الفشل في الـ Logs
+        if res.status_code != 200:
+            print(f"❌ Gemini Error Details: {res_data}") 
+            return "عذراً، واجهت مشكلة في معالجة الرد الذكي."
+            
+        return res_data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception as e:
+        print(f"❌ Connection Error: {e}")
+        return "عذراً، حدث خطأ في الاتصال."
 
+# --- وظيفة الإرسال ---
 def send_whatsapp(to_number: str, message_text: str):
-    clean_to = to_number.replace("+", "").replace(" ", "").strip()
-    clean_from = SANDBOX_NUMBER.replace("+", "").replace(" ", "").strip()
+    clean_to = to_number.replace("+", "").strip()
+    clean_from = SANDBOX_NUMBER.replace("+", "").strip()
     
     try:
         msg = WhatsappText(from_=clean_from, to=clean_to, text=message_text)
-        # الإرسال عبر خاصية messages كما في التوثيق
         response = vonage_client.messages.send(msg)
-        print(f"✅ تم الإرسال بنجاح! UUID: {response.message_uuid}")
+        print(f"✅ Message Sent! UUID: {response.message_uuid}")
     except Exception as e:
-        print(f"❌ فشل إرسال واتساب: {e}")
+        print(f"❌ Vonage Send Error: {e}")
 
 # --- المسارات ---
-
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
